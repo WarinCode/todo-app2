@@ -6,11 +6,10 @@ import React, {
   useState,
   useId,
   ChangeEvent,
-  MutableRefObject,
 } from "react";
 import Todo from "../index";
 import Task from "./Task";
-import { MagnifyingGlass, Rings } from "react-loader-spinner";
+import { Rings } from "react-loader-spinner";
 
 interface Props {
   todos: Todo[];
@@ -18,13 +17,10 @@ interface Props {
   editTask: (
     e: ChangeEvent<HTMLInputElement>,
     thisId: string,
-    isDone: boolean
+    isDone: boolean,
+    oldName : string
   ) => void;
-  taskComplete: (
-    thisId: string,
-    ref: MutableRefObject<HTMLLIElement | null>,
-    isDone: boolean
-  ) => void;
+  taskComplete: (thisId: string, isDone: boolean) => void;
 }
 
 const TodoList: FC<Props> = ({
@@ -38,6 +34,7 @@ const TodoList: FC<Props> = ({
   let taskId = useId();
 
   useEffect(() => {
+    localStorage
     setList(todos);
   }, [todos]);
 
@@ -58,7 +55,9 @@ const TodoList: FC<Props> = ({
             visible={true}
             ariaLabel="rings-loading"
           />
-          <h1 className="text-3xl mt-2 max-[390px]:text-2xl">โปรดเพื่มงานที่ต้องทำก่อน</h1>
+          <h1 className="text-3xl mt-2 max-[390px]:text-2xl">
+            โปรดเพื่มงานที่ต้องทำก่อน
+          </h1>
         </div>
       ) : (
         list.map((item: Todo, idx: number): JSX.Element => {

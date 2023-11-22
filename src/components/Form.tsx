@@ -1,16 +1,23 @@
-import React, { useState, useRef, ChangeEvent, FormEvent , MutableRefObject} from "react";
+import React, {
+  useState,
+  useRef,
+  ChangeEvent,
+  FormEvent,
+  JSX,
+} from "react";
 import TodoList from "./TodoList";
 import Todo from "../index";
 import { MdNoteAdd } from "react-icons/md";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { ToastContainer , toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Form = () => {
+const Form = (): JSX.Element => {
   const [todo, setTodo] = useState<string>("");
   const [todoList, setTodoList] = useState<Todo[]>([]);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const max: number = 50;
   const randomId = (): number => Math.floor(Math.random() * 1000);
 
   const handleAdd = (e: FormEvent): void => {
@@ -37,6 +44,20 @@ const Form = () => {
         progress: undefined,
         theme: "colored",
       });
+    } else if (todoList.length >= max) {
+      toast.error(
+        `ไม่สามารถเพิ่มจำนวนงานได้เกิน ${max} จำนวนโปรดเลือกลบงานที่ทำเสร็จไปแล้วเพื่อเพิ่มอันใหม่`,
+        {
+          position: "top-center",
+          autoClose: 1800,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        }
+      );
     } else {
       const newTodo: Todo = {
         title: todo,
@@ -53,7 +74,6 @@ const Form = () => {
 
   const handleComplete = (
     thisId: string,
-    liRef: MutableRefObject<HTMLLIElement | null>,
     isDone: boolean
   ): void => {
     if (!isDone) {
@@ -65,9 +85,6 @@ const Form = () => {
           return item;
         })
       );
-      liRef.current!.className = "w-80 box-border p-6 border-none border-slate-950 rounded-lg bg-gray-200 shadow-xl transition ease-in-out duration-300 hover:shadow-2xl hover:scale-105 text-zinc-600 opacity-50";
-      liRef.current!.children[0]!.className = "text-xl truncate ... mb-2 l line-through cursor-default"
-      
     } else {
       let name: Todo[] | string = todoList.filter((val: Todo): string =>
         val.id === thisId ? val.title : ""
@@ -89,14 +106,14 @@ const Form = () => {
     }
   };
 
-  const handleReset = async ():Promise<void> => {
+  const handleReset = async (): Promise<void> => {
     if (todoList.length !== 0) {
       const promise: Promise<string> = new Promise((resolve) => {
         setTimeout((): void => resolve("ลบข้อมูลทั้งหมดเสร็จสิ้น"), 3000);
       });
-      await toast.promise<string , string , string>(promise, {
+      await toast.promise<string, string, string>(promise, {
         pending: {
-          render(){
+          render() {
             return "กำลังลบข้อมูล ...";
           },
           theme: "colored",
@@ -105,7 +122,7 @@ const Form = () => {
           autoClose: 2300,
         },
         success: {
-          render({ data }){
+          render({ data }) {
             setTodoList([]);
             return data;
           },
@@ -116,7 +133,7 @@ const Form = () => {
         },
       });
     } else {
-      toast.error('ไม่สามารถลบข้อมูลได้เนื่องจากไม่มีรายการข้อมูลใดๆให้ลบ!', {
+      toast.error("ไม่สามารถลบข้อมูลได้เนื่องจากไม่มีรายการข้อมูลใดๆให้ลบ!", {
         position: "top-center",
         autoClose: 1800,
         hideProgressBar: false,
@@ -125,20 +142,31 @@ const Form = () => {
         draggable: true,
         progress: undefined,
         theme: "colored",
-        });
+      });
     }
   };
 
   const handleEdit = (
     e: ChangeEvent<HTMLInputElement>,
     thisId: string,
-    isDone: boolean
+    isDone: boolean,
+    oldName : string
   ): void => {
     if (!isDone) {
       setTodoList((prevTodo: Todo[]): Todo[] =>
         prevTodo.map((item: Todo): Todo => {
           if (item.id === thisId) {
             item.title = e.target.value;
+          }
+          return item;
+        })
+      );
+    }
+    if(e.target.value === "" || e.target.value.length === 0){
+      setTodoList((prevTodo: Todo[]): Todo[] =>
+        prevTodo.map((item: Todo): Todo => {
+          if (item.id === thisId) {
+            item.title = oldName;
           }
           return item;
         })

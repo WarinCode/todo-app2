@@ -1,4 +1,11 @@
-import React, { FC, JSX, useState, useRef, ChangeEvent , MutableRefObject} from "react";
+import React, {
+  FC,
+  JSX,
+  useState,
+  useRef,
+  ChangeEvent,
+  useEffect,
+} from "react";
 import Todo from "../index";
 import { RiEdit2Fill, RiDeleteBin5Fill } from "react-icons/ri";
 import { MdFileDownloadDone } from "react-icons/md";
@@ -12,13 +19,10 @@ interface Props extends Todo {
   editTask: (
     e: ChangeEvent<HTMLInputElement>,
     thisId: string,
-    isDone: boolean
+    isDone: boolean,
+    oldName : string
   ) => void;
-  taskComplete: (
-    thisId: string,
-    ref: MutableRefObject<HTMLLIElement | null>,
-    isDone: boolean
-  ) => void;
+  taskComplete: (thisId: string, isDone: boolean) => void;
 }
 
 const Task: FC<Props> = ({
@@ -36,6 +40,7 @@ const Task: FC<Props> = ({
   const [state, setState] = useState(false);
   const liRef = useRef<null | HTMLLIElement>(null);
   const inputRef = useRef<null | HTMLInputElement>(null);
+  const [oldName, setOldName] = useState<string>(title);
 
   const changeState = (): void => {
     if (!isDone) {
@@ -59,6 +64,19 @@ const Task: FC<Props> = ({
     }
   };
 
+  useEffect(() => {
+    liRef.current!.className =
+      "w-80 max-[400px]:w-64 box-border p-6 border-none border-slate-950 rounded-lg bg-gray-200 shadow-xl transition ease-in-out duration-300 hover:shadow-2xl hover:scale-105";
+    liRef.current!.children[0]!.className =
+      "text-xl truncate ... mb-2 cursor-default";
+    if (isDone) {
+      liRef.current!.className =
+        "w-80 max-[400px]:w-64 box-border p-6 border-none border-slate-950 rounded-lg bg-gray-200 shadow-xl transition ease-in-out duration-300 hover:shadow-2xl hover:scale-105 text-zinc-600 opacity-50";
+      liRef.current!.children[0]!.className =
+        "text-xl truncate ... mb-2 line-through cursor-default";
+    }
+  }, [isDone]);
+
   return (
     <>
       <li
@@ -71,7 +89,7 @@ const Task: FC<Props> = ({
             type="text"
             defaultValue={title}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              editTask(e, id, isDone)
+              editTask(e, id, isDone , oldName)
             }
             onMouseOut={changeState}
             className="w-full text-xl border-b border-black outline-none focus:border-teal-300
@@ -91,11 +109,11 @@ const Task: FC<Props> = ({
         <span className="my-4 flex justify-end">
           <MdFileDownloadDone
             className="text-2xl text-green-400 cursor-pointer"
-            onClick={():void => taskComplete(id, liRef, isDone)}
+            onClick={(): void => taskComplete(id, isDone)}
           />
           <RiDeleteBin5Fill
             className="text-2xl mx-2 cursor-pointer"
-            onClick={():void => deleteTask(id)}
+            onClick={(): void => deleteTask(id)}
           />
           <RiEdit2Fill
             className="text-2xl cursor-pointer"

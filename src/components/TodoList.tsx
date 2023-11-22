@@ -31,10 +31,9 @@ const TodoList: FC<Props> = ({
 }): JSX.Element => {
   const [list, setList] = useState<Todo[]>([]);
   const ulRef = useRef<HTMLUListElement | null>(null);
-  let taskId = useId();
+  let taskId:string = useId();
 
   useEffect(() => {
-    localStorage
     setList(todos);
   }, [todos]);
 

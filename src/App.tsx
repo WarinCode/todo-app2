@@ -10,7 +10,7 @@ export default function App(): React.JSX.Element {
     <>
       <Navbar />
         <Form />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
